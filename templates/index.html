@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Movie</title>
+</head>
+<body>
+  <h1>Add a Movie</h1>
+  <form method="POST" action="/insert_movie">
+    <label for="title">Movie Title:</label>
+    <input type="text" name="title" required><br><br>
+
+    <label for="year">Release Year:</label>
+    <input type="number" name="year" required><br><br>
+
+    <button type="submit">Add Movie</button>
+  </form>
+  <h1>Update a Movie</h1>
+  <form method="POST" action="/update_movie">
+    <label for="title">Movie Title:</label>
+    <input type="text" name="title" required><br><br>
+
+    <label for="year">Release Year:</label>
+    <input type="number" name="year" required><br><br>
+
+    <button type="submit">Update Movie</button>
+  </form>
+  <h1>Delete a Movie</h1>
+  <form method="POST" action="/delete_movie">
+    <label for="title">Movie Title:</label>
+    <input type="text" name="title" required><br><br>
+
+    <button type="submit">Delete Movie</button>
+  </form>
+</body>
+</html>
