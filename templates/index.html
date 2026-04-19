@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Movie Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0b;
+      --surface:  #111113;
+      --border:   #1e1e22;
+      --accent:   #e8b84b;
+      --accent2:  #c97b3a;
+      --text:     #e8e6e0;
+      --muted:    #6b6870;
+      --danger:   #c0392b;
+      --success:  #27ae60;
+      --info:     #2980b9;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      padding: 48px 16px 80px;
+    }
+
+    /* subtle grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+    header .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--text);
+    }
+    header h1 span { color: var(--accent); }
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--accent);
+      margin: 20px auto 0;
+      border-radius: 2px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 28px 24px;
+      margin-bottom: 16px;
+      transition: border-color 0.25s;
+    }
+    .card:hover { border-color: #2e2e34; }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title .icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* ── Form elements ── */
+    .field { margin-bottom: 18px; }
+    .field:last-of-type { margin-bottom: 22px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input::placeholder { color: #3a3a40; }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,184,75,0.07);
+    }
+
+    /* custom select arrow */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      font-size: 12px;
+    }
+    select option { background: #18181b; }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn:hover  { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-add     { background: var(--accent);  color: #0a0a0b; }
+    .btn-update  { background: #6b5d3f;        color: var(--text); }
+    .btn-rent    { background: #2e3d4f;        color: var(--text); }
+    .btn-delete  { background: #3d1f1f;        color: #e07070; border: 1px solid #5a2a2a; }
+    .btn-profile { background: var(--border);  color: var(--text); border: 1px solid #2a2a30; }
+    .btn-list    { background: #1a2e1f;        color: #6dbf80; border: 1px solid #2a4a30; }
+
+    /* ── Footer actions ── */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .actions form { margin: 0; }
+
+    /* ── Animations ── */
+    .card {
+      animation: fadeUp 0.4s ease both;
+    }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.10s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.20s; }
+    .card:nth-child(5) { animation-delay: 0.25s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    header { animation: fadeUp 0.4s ease both; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Cinema Dashboard</p>
+    <h1>Movie <span>Manager</span></h1>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ADD -->
+  <div class="card">
+    <p class="card-title"><span class="icon">＋</span> Add a Movie</p>
+    <form method="POST" action="/insert_movie">
+      <div class="field">
+        <label for="titleAdd">Title</label>
+        <input type="text" id="titleAdd" name="title" placeholder="e.g. Inception" required />
+      </div>
+      <div class="field">
+        <label for="yearAdd">Release Year</label>
+        <input type="number" id="yearAdd" name="year" min="1888" max="2100" placeholder="e.g. 2010" required />
+      </div>
+      <button type="submit" class="btn btn-add">Add Movie</button>
+    </form>
+  </div>
+
+  <!-- UPDATE -->
+  <div class="card">
+    <p class="card-title"><span class="icon">✎</span> Update a Movie</p>
+    <form method="POST" action="/update_movie">
+      <div class="field">
+        <label for="titleUpdate">Select Movie</label>
+        <div class="select-wrap">
+          <select id="titleUpdate" name="title" required>
+            <option value="" disabled selected>Choose a movie</option>
+            {% for movie in movies %}
+              <option value="{{ movie.title }}">{{ movie.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="yearUpdate">New Year</label>
+        <input id="yearUpdate" type="number" name="year" min="1888" max="2100" placeholder="Updated year" required />
+      </div>
+      <button type="submit" class="btn btn-update">Update Movie</button>
+    </form>
+  </div>
+
+  <!-- RENT -->
+  <div class="card">
+    <p class="card-title"><span class="icon">▶</span> Rent a Movie</p>
+    <form method="POST" action="/renting">
+      <div class="field">
+        <label for="titleRent">Select Movie</label>
+        <div class="select-wrap">
+          <select id="titleRent" name="title" required>
+            <option value="" disabled selected>Choose a movie</option>
+            {% for movie in movies %}
+              <option value="{{ movie.title }}">{{ movie.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="phonenoRent">Phone Number</label>
+        <input id="phonenoRent" type="tel" pattern="[0-9]{10}" name="phoneno" placeholder="10-digit number" required />
+      </div>
+      <button type="submit" class="btn btn-rent">Rent Movie</button>
+    </form>
+  </div>
+
+  <!-- DELETE -->
+  <div class="card">
+    <p class="card-title"><span class="icon">✕</span> Delete a Movie</p>
+    <form method="POST" action="/delete_movie">
+      <div class="field">
+        <label for="titleDelete">Select Movie</label>
+        <div class="select-wrap">
+          <select id="titleDelete" name="title" required>
+            <option value="" disabled selected>Choose a movie</option>
+            {% for movie in movies %}
+              <option value="{{ movie.title }}">{{ movie.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-delete">Delete Movie</button>
+    </form>
+  </div>
+
+  <!-- FOOTER ACTIONS -->
+  <div class="card">
+    <div class="actions">
+      <form method="GET" action="/rent_profile">
+        <button type="submit" class="btn btn-profile">👤 Profile</button>
+      </form>
+      <form method="GET" action="/movies">
+        <button type="submit" class="btn btn-list">🎥 All Movies</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+<script>
+  document.querySelectorAll('form[method="POST"]').forEach(function (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var action = form.getAttribute('action');
+      try {
+        var res = await fetch(action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        var text = await res.text();
+        var data = {};
+        try { data = JSON.parse(text); } catch (err) {}
+        if (data.message) {
+          alert(data.message);
+        } else {
+          alert(res.ok ? 'Done.' : 'Something went wrong.');
+        }
+        if (res.ok && data.ok !== false) {
+          window.location.reload();
+        }
+      } catch (err) {
+        alert('Network error.');
+      }
+    });
+  });
+</script>
+</body>
+</html>
