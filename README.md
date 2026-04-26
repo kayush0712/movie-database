@@ -1,18 +1,27 @@
-# 🎬 Movie Rental Web Application
+# 🎬 Movie Database
 
-A full-stack movie rental web application built using **Flask** and **MongoDB Atlas**. It allows users to add, update, delete, search, and rent movies while tracking available copies and user rentals.
+A full-stack movie rental web app with AI-powered semantic search — find movies by vibe, not just title.
+
+🔗 **[Live Demo](https://movie-database-c21r.onrender.com)**
 
 ---
 
-## 📌 Features
+## Overview
 
-- 🔍 **Search Movies**  
-- 🎞️ **Insert New Movies**
-- 🔄 **Update Movie Details**
-- ❌ **Delete Movies**
-- 📦 **Track Copies Available**
-- 📱 **Rent Movies with Phone Number**
-- 🧾 **Track How Many Copies a User Has Rented**
+Movie Database is a cinema management dashboard built with Flask and MongoDB Atlas. Beyond standard CRUD operations, it features a **vector search engine** that lets users search for movies using natural language — describe a mood, theme, or feeling and get semantically ranked results.
 
+New movies added to the database are automatically enriched with AI-generated descriptions via an LLM, which are then converted into 384-dimensional vector embeddings and stored in MongoDB Atlas for cosine similarity search.
 
-To use - https://movie-database-c21r.onrender.com
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python, Flask |
+| Database | MongoDB Atlas |
+| Vector Search | MongoDB Atlas Vector Search |
+| Embeddings | `all-MiniLM-L6-v2` (sentence-transformers) |
+| LLM | OpenRouter API |
+| Frontend | HTML, CSS, JavaScript (Jinja2 templates) |
+| Deployment | Render |
