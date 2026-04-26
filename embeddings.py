@@ -1,12 +1,23 @@
-from sentence_transformers import SentenceTransformer
+import os
+import requests
+from dotenv import load_dotenv
 
-_model = None
+load_dotenv()
 
-def get_model():
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 def embed_text(text: str) -> list:
-    return get_model().encode(text).tolist()
+    response = requests.post(
+        "https://openrouter.ai/api/v1/embeddings",
+        headers={
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "huggingface/sentence-transformers/all-MiniLM-L6-v2",
+            "input": text
+        }
+    )
+    data = response.json()
+    print("Embedding response:", data)
+    return data["data"][0]["embedding"]
