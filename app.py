@@ -41,10 +41,11 @@ def insert_movie():
     year = request.form.get("year")
 
     if title and year:
-        
+        # Try to generate description, fall back to title if LLM fails
         description = generate_movie_description(title, int(year))
+        if not description:
+            description = f"{title} ({year})"  # fallback
 
-        
         vector = embed_text(description)
 
         mongo.db.movies.insert_one({
@@ -63,7 +64,6 @@ def insert_movie():
     if _is_ajax_request():
         return _json_message(False, msg, 400)
     return msg
-
 
 @app.route("/update_movie", methods=["POST"])
 def update_movie():

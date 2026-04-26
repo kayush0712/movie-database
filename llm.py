@@ -1,7 +1,11 @@
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+print("Key loaded:", OPENROUTER_API_KEY[:15] if OPENROUTER_API_KEY else "NOT FOUND")
 
 def generate_movie_description(title: str, year: int = None) -> str:
     year_str = f" ({year})" if year else ""
@@ -18,7 +22,7 @@ def generate_movie_description(title: str, year: int = None) -> str:
             "Content-Type": "application/json"
         },
         json={
-            "model": "meta-llama/llama-3.3-70b-instruct:free",
+            "model": "openrouter/auto",
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 200
         }
@@ -29,10 +33,10 @@ def generate_movie_description(title: str, year: int = None) -> str:
 
     if "error" in data:
         print("Error:", data["error"])
-        return f"{title} - No description available."
+        return None
 
     content = data["choices"][0]["message"]["content"]
     if not content:
-        return f"{title} - No description available."
+        return None
 
     return content.strip()
