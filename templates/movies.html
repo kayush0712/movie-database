@@ -84,6 +84,36 @@
       margin-bottom: 14px;
     }
 
+    /* Search toggle */
+    .search-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .toggle-btn {
+      padding: 6px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0a0a0b;
+    }
+    .toggle-btn:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .search-form {
       display: flex;
       gap: 10px;
@@ -172,15 +202,49 @@
       font-size: 18px;
       flex-shrink: 0;
     }
-    .movie-title {
+
+    /* Movie info — stacks title + description */
+    .movie-info {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+    .movie-title {
       font-size: 0.95rem;
       font-weight: 500;
       color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+    .movie-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Similarity score badge */
+    .score-badge {
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: rgba(232,184,75,0.1);
+      border: 1px solid rgba(232,184,75,0.2);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .chevron {
       color: var(--muted);
       font-size: 1.1rem;
+      flex-shrink: 0;
     }
 
     .empty {
@@ -230,17 +294,33 @@
 
   <div class="card">
     <p class="card-title">Search catalog</p>
-    <form class="search-form" action="{{ url_for('search') }}" method="GET">
+
+    <!-- Mode toggle -->
+    <div class="search-toggle">
+      <button class="toggle-btn active" id="btn-title" onclick="setMode('title')">Title</button>
+      <button class="toggle-btn" id="btn-vibe" onclick="setMode('vibe')">✦ Vibe</button>
+    </div>
+
+    <!-- Title search form -->
+    <form class="search-form" id="form-title" action="{{ url_for('search') }}" method="GET">
       <input type="text" name="query" placeholder="Search by title…" value="{{ query|default('', true) }}" />
+      <button type="submit">Search</button>
+    </form>
+
+    <!-- Semantic / vibe search form -->
+    <form class="search-form" id="form-vibe" style="display:none" action="{{ url_for('semantic_search') }}" method="GET">
+      <input type="text" name="query" placeholder="e.g. emotional space movie…" value="{{ query|default('', true) }}" />
       <button type="submit">Search</button>
     </form>
   </div>
 
   <p class="section-label">
-    {% if query %}
-      Results for “{{ query }}” ({{ movies|length }} match{% if movies|length != 1 %}es{% endif %})
+    {% if search_type == 'vibe' %}
+      Vibe results for "{{ query }}" — {{ movies|length }} match{% if movies|length != 1 %}es{% endif %}
+    {% elif query %}
+      Results for "{{ query }}" — {{ movies|length }} match{% if movies|length != 1 %}es{% endif %}
     {% else %}
-      Library ({{ movies|length }} titles)
+      Library — {{ movies|length }} titles
     {% endif %}
   </p>
 
@@ -250,12 +330,22 @@
       <a class="movie-row" href="{{ url_for('show_movie', movie_id=movie.id) }}">
         <span class="movie-rank">{{ loop.index }}</span>
         <span class="movie-tile">🎬</span>
-        <span class="movie-title">{{ movie.title }}</span>
+        <div class="movie-info">
+          <span class="movie-title">{{ movie.title }}</span>
+          {% if movie.description %}
+            <span class="movie-desc">{{ movie.description[:90] }}…</span>
+          {% endif %}
+        </div>
+        {% if movie.score %}
+          <span class="score-badge">{{ "%.0f"|format(movie.score * 100) }}%</span>
+        {% endif %}
         <span class="chevron">›</span>
       </a>
       {% endfor %}
     {% else %}
-      <div class="empty">No movies in the database yet. Add one from the dashboard.</div>
+      <div class="empty">
+        {% if query %}No movies matched your search.{% else %}No movies in the database yet. Add one from the dashboard.{% endif %}
+      </div>
     {% endif %}
   </div>
 
@@ -264,5 +354,21 @@
   </div>
 
 </div>
+
+<script>
+  function setMode(mode) {
+    const isVibe = mode === 'vibe';
+    document.getElementById('form-title').style.display = isVibe ? 'none' : 'flex';
+    document.getElementById('form-vibe').style.display  = isVibe ? 'flex' : 'none';
+    document.getElementById('btn-title').classList.toggle('active', !isVibe);
+    document.getElementById('btn-vibe').classList.toggle('active',  isVibe);
+  }
+
+  // Auto-activate vibe tab if we landed here from a vibe search
+  {% if search_type == 'vibe' %}
+    setMode('vibe');
+  {% endif %}
+</script>
+
 </body>
 </html>

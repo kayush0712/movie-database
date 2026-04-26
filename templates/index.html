@@ -29,7 +29,6 @@
       padding: 48px 16px 80px;
     }
 
-    /* subtle grain overlay */
     body::before {
       content: '';
       position: fixed;
@@ -107,6 +106,100 @@
       flex-shrink: 0;
     }
 
+    /* ── Vibe Search Card (hero style) ── */
+    .card-vibe {
+      background: linear-gradient(135deg, #15120a 0%, #111113 60%);
+      border: 1px solid #2e2515;
+      border-radius: 12px;
+      padding: 28px 28px 24px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .card-vibe:hover { border-color: #4a3a18; }
+    .card-vibe::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(232,184,75,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .card-vibe .card-title {
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .card-vibe .card-title .icon {
+      background: rgba(232,184,75,0.12);
+      border: 1px solid rgba(232,184,75,0.2);
+    }
+    .vibe-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .vibe-examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+    .vibe-chip {
+      font-size: 0.72rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .vibe-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232,184,75,0.05);
+    }
+    .vibe-search-row {
+      display: flex;
+      gap: 10px;
+    }
+    .vibe-search-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid #2e2515;
+      border-radius: 7px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .vibe-search-row input::placeholder { color: #3a3a40; }
+    .vibe-search-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,184,75,0.07);
+    }
+    .btn-vibe-search {
+      padding: 11px 20px;
+      border: none;
+      border-radius: 7px;
+      background: var(--accent);
+      color: #0a0a0b;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .btn-vibe-search:hover { opacity: 0.88; transform: translateY(-1px); }
+
     /* ── Form elements ── */
     .field { margin-bottom: 18px; }
     .field:last-of-type { margin-bottom: 22px; }
@@ -142,7 +235,6 @@
       box-shadow: 0 0 0 3px rgba(232,184,75,0.07);
     }
 
-    /* custom select arrow */
     .select-wrap { position: relative; }
     .select-wrap::after {
       content: '▾';
@@ -189,22 +281,42 @@
     }
     .actions form { margin: 0; }
 
+    /* ── Section divider ── */
+    .section-sep {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin: 28px 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-sep::before,
+    .section-sep::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
     /* ── Animations ── */
-    .card {
+    .card, .card-vibe {
       animation: fadeUp 0.4s ease both;
     }
-    .card:nth-child(1) { animation-delay: 0.05s; }
-    .card:nth-child(2) { animation-delay: 0.10s; }
-    .card:nth-child(3) { animation-delay: 0.15s; }
-    .card:nth-child(4) { animation-delay: 0.20s; }
-    .card:nth-child(5) { animation-delay: 0.25s; }
+    header               { animation: fadeUp 0.4s 0s   ease both; }
+    .card-vibe           { animation-delay: 0.05s; }
+    .card:nth-child(1)   { animation-delay: 0.10s; }
+    .card:nth-child(2)   { animation-delay: 0.15s; }
+    .card:nth-child(3)   { animation-delay: 0.20s; }
+    .card:nth-child(4)   { animation-delay: 0.25s; }
+    .card:nth-child(5)   { animation-delay: 0.30s; }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
-    header { animation: fadeUp 0.4s ease both; }
   </style>
 </head>
 <body>
@@ -215,6 +327,25 @@
     <h1>Movie <span>Manager</span></h1>
     <div class="divider"></div>
   </header>
+
+  <!-- VIBE SEARCH (hero feature) -->
+  <div class="card-vibe">
+    <p class="card-title"><span class="icon">✦</span> Vibe Search</p>
+    <p class="vibe-subtitle">Describe a mood, theme, or feeling — find movies that match.</p>
+    <div class="vibe-examples">
+      <button class="vibe-chip" onclick="setVibe(this)">mind-bending thriller</button>
+      <button class="vibe-chip" onclick="setVibe(this)">feel-good family movie</button>
+      <button class="vibe-chip" onclick="setVibe(this)">romantic drama in Europe</button>
+      <button class="vibe-chip" onclick="setVibe(this)">dark psychological horror</button>
+      <button class="vibe-chip" onclick="setVibe(this)">emotional space adventure</button>
+    </div>
+    <form class="vibe-search-row" method="GET" action="/semantic_search">
+      <input type="text" name="query" id="vibeInput" placeholder="e.g. sad movie about grief and family…" />
+      <button type="submit" class="btn-vibe-search">Search</button>
+    </form>
+  </div>
+
+  <div class="section-sep">Manage Library</div>
 
   <!-- ADD -->
   <div class="card">
@@ -310,7 +441,15 @@
   </div>
 
 </div>
+
 <script>
+  // Vibe chip click → fill input
+  function setVibe(chip) {
+    document.getElementById('vibeInput').value = chip.textContent;
+    document.getElementById('vibeInput').focus();
+  }
+
+  // AJAX for POST forms only
   document.querySelectorAll('form[method="POST"]').forEach(function (form) {
     form.addEventListener('submit', async function (e) {
       e.preventDefault();

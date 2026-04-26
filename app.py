@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_pymongo import PyMongo
 from bson import ObjectId
 from markupsafe import escape
+from embeddings import embed_text
+from llm import generate_movie_description
 import os
 
 app = Flask(__name__)
@@ -37,11 +39,24 @@ def insert_movie():
     year = request.form.get("year")
 
     if title and year:
-        mongo.db.movies.insert_one({"title": title, "year": int(year)})
+        
+        description = generate_movie_description(title, int(year))
+
+        
+        vector = embed_text(description)
+
+        mongo.db.movies.insert_one({
+            "title": title,
+            "year": int(year),
+            "description": description,
+            "embedding": vector
+        })
+
         msg = f"Movie added: {title} ({year})."
         if _is_ajax_request():
             return _json_message(True, msg)
         return msg
+
     msg = "Missing title or year."
     if _is_ajax_request():
         return _json_message(False, msg, 400)
@@ -148,7 +163,63 @@ def rent_movie_form():
 def list_movies():
     cursor = mongo.db.movies.find({}, {"title": 1}).sort("title", 1)
     movies = [{"id": str(doc["_id"]), "title": doc["title"]} for doc in cursor]
-    return render_template("movies.html", movies=movies, query=None)
+    return render_template("movies.html", movies=movies, query=None, search_type=None)
+
+
+@app.route("/search")
+def search():
+    query = (request.args.get("query") or "").strip()
+    if not query:
+        return redirect(url_for("list_movies"))
+
+    cursor = mongo.db.movies.find(
+        {"title": {"$regex": query, "$options": "i"}},
+        {"title": 1},
+    ).sort("title", 1)
+    movies = [{"id": str(doc["_id"]), "title": doc["title"]} for doc in cursor]
+    return render_template("movies.html", movies=movies, query=query, search_type="title")
+
+
+@app.route("/semantic_search")
+def semantic_search():
+    query = (request.args.get("query") or "").strip()
+    if not query:
+        return redirect(url_for("list_movies"))
+
+    query_vector = embed_text(query)
+
+    results = list(mongo.db.movies.aggregate([
+    {
+        "$vectorSearch": {
+            "index": "vector_index",
+            "path": "embedding",
+            "queryVector": query_vector,
+            "numCandidates": 100,
+            "limit": 20
+        }
+    },
+    {
+        "$project": {
+            "_id": 1,
+            "title": 1,
+            "year": 1,
+            "description": 1,
+            "score": {"$meta": "vectorSearchScore"}
+        }
+    }
+    ]))
+
+    movies = [
+        {
+            "id": str(r["_id"]),
+            "title": r["title"],
+            "description": r.get("description", ""),
+            "score": r.get("score")
+        }
+        for r in results
+    ]
+
+    return render_template("movies.html", movies=movies, query=query, search_type="vibe")
 
 
 
@@ -192,23 +263,6 @@ def show_movie(movie_id):
 </body>
 </html>"""
 
-@app.route("/search")
-def search():
-    query = (request.args.get("query") or "").strip()
-    if not query:
-        return redirect(url_for("list_movies"))
-
-    cursor = mongo.db.movies.find(
-        {"title": {"$regex": query, "$options": "i"}},
-        {"title": 1},
-    ).sort("title", 1)
-    movies = [{"id": str(doc["_id"]), "title": doc["title"]} for doc in cursor]
-    return render_template("movies.html", movies=movies, query=query)
-
-def _rentals_for_template():
-    return list(
-        mongo.db.Rentals.find({}, {"_id": 0, "movie": 1, "phoneno": 1, "copies": 1})
-    )
 
 
 @app.route("/rent_profile")
