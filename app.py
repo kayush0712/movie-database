@@ -4,8 +4,10 @@ from bson import ObjectId
 from markupsafe import escape
 from embeddings import embed_text
 from llm import generate_movie_description
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
 app = Flask(__name__)
 
 
