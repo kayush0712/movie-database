@@ -14,7 +14,7 @@ def embed_text(text: str) -> list:
             "Content-Type": "application/json"
         },
         json={
-            "model": "openrouter/auto",
+            "model": "text-embedding-ada-002",
             "input": text
         }
     )
