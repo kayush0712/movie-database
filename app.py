@@ -22,6 +22,11 @@ def _is_ajax_request():
 def _json_message(ok, message, status=200):
     return jsonify({"ok": ok, "message": message}), status
 
+def _rentals_for_template():
+    return list(
+        mongo.db.Rentals.find({}, {"_id": 0, "movie": 1, "phoneno": 1, "copies": 1})
+    )
+
 @app.route("/")
 def index():
     movies = list(mongo.db.movies.find({}, {"_id": 0, "title": 1}))

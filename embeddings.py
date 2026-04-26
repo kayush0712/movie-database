@@ -14,10 +14,16 @@ def embed_text(text: str) -> list:
             "Content-Type": "application/json"
         },
         json={
-            "model": "text-embedding-ada-002",
-            "input": text
+            "model": "openai/text-embedding-3-small",
+            "input": text,
+            "dimensions": 384
         }
     )
     data = response.json()
     print("Embedding response:", data)
+
+    if "error" in data:
+        print("Embedding error:", data["error"])
+        return None
+
     return data["data"][0]["embedding"]
