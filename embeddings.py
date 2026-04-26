@@ -14,7 +14,7 @@ def embed_text(text: str) -> list:
             "Content-Type": "application/json"
         },
         json={
-            "model": "huggingface/sentence-transformers/all-MiniLM-L6-v2",
+            "model": "openrouter/auto",
             "input": text
         }
     )
